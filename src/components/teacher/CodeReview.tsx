@@ -29,6 +29,7 @@ const CodeReview = () => {
   const [grading, setGrading] = useState<Record<string, { grade: string; feedback: string }>>({});
   const [viewingCode, setViewingCode] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
