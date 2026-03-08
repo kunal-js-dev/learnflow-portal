@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import animeBg from '@/assets/anime-bg.mp4';
+import animeBg from '@/assets/anime-edu-bg.mp4';
 
 const Login = () => {
   const [email, setEmail] = useState('');
