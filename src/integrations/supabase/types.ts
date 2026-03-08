@@ -51,7 +51,15 @@ export type Database = {
           submitted_at?: string
           time_taken?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "code_submissions_student_id_profiles_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       files: {
         Row: {
