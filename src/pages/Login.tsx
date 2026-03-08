@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import animeBg from '@/assets/anime-bg.mp4';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -35,10 +36,19 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Animated background orbs */}
-      <div className="absolute top-1/4 -left-20 w-72 h-72 rounded-full bg-primary/5 blur-3xl float" />
-      <div className="absolute bottom-1/4 -right-20 w-72 h-72 rounded-full bg-accent/5 blur-3xl float" style={{ animationDelay: '1.5s' }} />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Anime video background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      >
+        <source src={animeBg} type="video/mp4" />
+      </video>
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-[1]" />
 
       <div className="w-full max-w-md animate-fade-in relative z-10">
         <div className="text-center mb-8">
