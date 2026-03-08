@@ -38,15 +38,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="fixed inset-0 bg-foreground/20 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar text-sidebar-foreground flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 glass-sidebar text-sidebar-foreground flex flex-col transition-transform duration-300 border-r border-sidebar-border ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-5 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
               <GraduationCap className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="font-bold text-sm text-sidebar-foreground">Learning Portal</h2>
-              <p className="text-xs text-sidebar-foreground/60 capitalize">{profile?.role} Panel</p>
+              <h2 className="font-bold text-sm tracking-tight text-sidebar-foreground">Learning Portal</h2>
+              <p className="text-[11px] text-sidebar-foreground/50 capitalize tracking-wide">{profile?.role} Panel</p>
             </div>
           </div>
         </div>
