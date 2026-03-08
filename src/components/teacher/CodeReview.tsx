@@ -31,10 +31,11 @@ const CodeReview = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('code_submissions')
-        .select('*, profiles!code_submissions_student_id_fkey(name)')
+        .select('*, profiles!code_submissions_student_id_profiles_fkey(name)')
         .order('submitted_at', { ascending: false });
+      if (error) { console.error('CodeReview fetch error:', error); }
       if (data) setSubmissions(data as unknown as SubmissionWithStudent[]);
       setLoading(false);
     };
