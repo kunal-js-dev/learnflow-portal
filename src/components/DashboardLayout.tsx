@@ -67,7 +67,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         <div className="p-3 border-t border-sidebar-border">
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+            <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground shadow-glow">
               {profile?.name?.charAt(0) || '?'}
             </div>
             <div className="flex-1 min-w-0">
