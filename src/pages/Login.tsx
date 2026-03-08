@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { BookOpen, Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, profile } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (profile) {
+      navigate(profile.role === 'teacher' ? '/teacher' : '/student', { replace: true });
+    }
+  }, [profile, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +27,6 @@ const Login = () => {
     setLoading(true);
     try {
       await login(email, password);
-      const stored = localStorage.getItem('portal_user');
-      if (stored) {
-        const user = JSON.parse(stored);
-        navigate(user.role === 'teacher' ? '/teacher' : '/student');
-      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -45,17 +46,7 @@ const Login = () => {
         </div>
 
         <Card className="shadow-elevated border-border/50">
-          <CardHeader className="pb-4">
-            <div className="flex gap-2 text-xs text-muted-foreground bg-muted rounded-lg p-3">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Demo credentials:</p>
-                <p>Student: student@demo.com / demo123</p>
-                <p>Teacher: teacher@demo.com / demo123</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</div>

@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ExternalLink, Play, Upload, Send, Timer, Code, ImageIcon } from 'lucide-react';
+import { ExternalLink, Play, Send, Timer, Code, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PLATFORMS = [
   { name: 'HackerRank', url: 'https://hackerrank.com', color: 'bg-success/10 text-success' },
@@ -31,20 +33,22 @@ const PROGRAMMIZ_URLS: Record<string, string> = {
 
 const DEFAULT_CODE: Record<string, string> = {
   html: '<!DOCTYPE html>\n<html>\n<head>\n  <title>Hello</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n</body>\n</html>',
-  css: 'body {\n  background: #f0f0f0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n}\n\nh1 {\n  color: #333;\n}',
+  css: 'body {\n  background: #f0f0f0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n}',
   javascript: '// JavaScript Code\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet("World"));',
   python: '# Python Code\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("World"))',
   c: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',
 };
 
 const CodingHub = () => {
+  const { user } = useAuth();
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState(DEFAULT_CODE['javascript']);
   const [timerStarted, setTimerStarted] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     let interval: number;
@@ -72,42 +76,60 @@ const CodingHub = () => {
   };
 
   const handleCompile = () => {
-    const url = PROGRAMMIZ_URLS[language];
-    if (url) window.open(url, '_blank');
+    window.open(PROGRAMMIZ_URLS[language], '_blank');
   };
 
-  const handleImageUpload = () => {
-    fileInputRef.current?.click();
-  };
+  const handleImageUpload = () => fileInputRef.current?.click();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setUploadedFile(file);
       const reader = new FileReader();
       reader.onload = () => setUploadedImage(reader.result as string);
       reader.readAsDataURL(file);
-      toast.success('Screenshot uploaded!');
+      toast.success('Screenshot attached!');
     }
   };
 
-  const handleSubmit = () => {
-    if (!timerStarted) {
-      toast.error('Please start coding first to begin the timer.');
-      return;
+  const handleSubmit = async () => {
+    if (!timerStarted) { toast.error('Start coding first.'); return; }
+    if (!user) { toast.error('Not authenticated.'); return; }
+    setSubmitting(true);
+    try {
+      let screenshotUrl: string | null = null;
+      if (uploadedFile) {
+        const ext = uploadedFile.name.split('.').pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('code-screenshots').upload(path, uploadedFile);
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage.from('code-screenshots').getPublicUrl(path);
+          screenshotUrl = urlData.publicUrl;
+        }
+      }
+
+      const { error } = await supabase.from('code_submissions').insert({
+        student_id: user.id,
+        language,
+        code,
+        time_taken: seconds,
+        screenshot_url: screenshotUrl,
+      });
+
+      if (error) throw error;
+      setTimerStarted(false);
+      toast.success(`Code submitted! Time: ${formatTime(seconds)}`);
+      setCode(DEFAULT_CODE[language]);
+      setUploadedImage(null);
+      setUploadedFile(null);
+      setSeconds(0);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    } finally {
+      setSubmitting(false);
     }
-    setTimerStarted(false);
-    toast.success(`Code submitted! Time: ${formatTime(seconds)}`);
-    // Mock submission
-    console.log({
-      language,
-      code,
-      timeTaken: seconds,
-      image: uploadedImage,
-      submittedAt: new Date().toISOString(),
-    });
   };
 
-  // Disable right-click and copy/paste in editor
   const preventActions = useCallback((e: React.SyntheticEvent) => {
     e.preventDefault();
     toast.warning('Copy/Paste is disabled in the coding editor.');
@@ -122,7 +144,6 @@ const CodingHub = () => {
         <p className="text-sm text-muted-foreground mt-1">Practice coding on external platforms or use the built-in editor</p>
       </div>
 
-      {/* External Platforms */}
       <div>
         <h3 className="text-sm font-semibold text-foreground mb-3">Coding Platforms</h3>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -142,7 +163,6 @@ const CodingHub = () => {
         </div>
       </div>
 
-      {/* Built-in Editor */}
       <Card className="shadow-elevated">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -153,39 +173,25 @@ const CodingHub = () => {
                 <span className="font-mono font-semibold text-foreground">{formatTime(seconds)}</span>
               </div>
               <Select value={language} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-32 h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {LANGUAGES.map(l => (
-                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-                  ))}
+                  {LANGUAGES.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
                 </SelectContent>
               </Select>
               {!timerStarted && (
-                <Button size="sm" onClick={handleStartCoding} className="gradient-primary text-primary-foreground">
-                  Start Coding
-                </Button>
+                <Button size="sm" onClick={handleStartCoding} className="gradient-primary text-primary-foreground">Start Coding</Button>
               )}
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="relative rounded-lg border border-border bg-foreground/[0.02] overflow-hidden">
-            {/* Line numbers */}
             <div className="absolute left-0 top-0 bottom-0 w-10 bg-muted/50 border-r border-border flex flex-col items-end pt-3 pr-2 text-xs text-muted-foreground font-mono select-none overflow-hidden">
-              {Array.from({ length: lineNumbers }, (_, i) => (
-                <div key={i} className="leading-5">{i + 1}</div>
-              ))}
+              {Array.from({ length: lineNumbers }, (_, i) => <div key={i} className="leading-5">{i + 1}</div>)}
             </div>
             <textarea
-              ref={editorRef}
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              onCopy={preventActions}
-              onPaste={preventActions}
-              onCut={preventActions}
-              onContextMenu={preventActions}
+              value={code} onChange={e => setCode(e.target.value)}
+              onCopy={preventActions} onPaste={preventActions} onCut={preventActions} onContextMenu={preventActions}
               className="code-editor w-full min-h-[300px] p-3 pl-14 bg-transparent resize-y text-sm leading-5 text-foreground focus:outline-none no-select"
               spellCheck={false}
             />
@@ -194,34 +200,19 @@ const CodingHub = () => {
           {uploadedImage && (
             <div className="relative inline-block">
               <img src={uploadedImage} alt="Upload" className="max-h-32 rounded-lg border border-border" />
-              <button
-                onClick={() => setUploadedImage(null)}
-                className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center"
-              >
-                ×
-              </button>
+              <button onClick={() => { setUploadedImage(null); setUploadedFile(null); }}
+                className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">×</button>
             </div>
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Button size="sm" variant="outline" onClick={handleCompile}>
-              <Play className="w-4 h-4 mr-1" /> Compile
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleImageUpload}>
-              <ImageIcon className="w-4 h-4 mr-1" /> Upload Image
-            </Button>
-            <Button size="sm" onClick={handleSubmit} className="gradient-primary text-primary-foreground">
-              <Send className="w-4 h-4 mr-1" /> Submit
+            <Button size="sm" variant="outline" onClick={handleCompile}><Play className="w-4 h-4 mr-1" /> Compile</Button>
+            <Button size="sm" variant="outline" onClick={handleImageUpload}><ImageIcon className="w-4 h-4 mr-1" /> Upload Image</Button>
+            <Button size="sm" onClick={handleSubmit} disabled={submitting} className="gradient-primary text-primary-foreground">
+              <Send className="w-4 h-4 mr-1" /> {submitting ? 'Submitting...' : 'Submit'}
             </Button>
           </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
         </CardContent>
       </Card>
     </div>
