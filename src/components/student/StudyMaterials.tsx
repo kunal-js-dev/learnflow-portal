@@ -35,8 +35,21 @@ const StudyMaterials = () => {
     fetchFiles();
   }, []);
 
-  const handleDownload = (file: Tables<'files'>) => {
-    window.open(file.file_url, '_blank');
+  const handleDownload = async (file: Tables<'files'>) => {
+    try {
+      const response = await fetch(file.file_url);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(file.file_url, '_blank');
+    }
   };
 
   if (loading) return <div className="flex items-center justify-center h-32 text-muted-foreground">Loading materials...</div>;
