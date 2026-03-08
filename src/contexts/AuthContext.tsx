@@ -1,20 +1,24 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
 
-interface User {
+interface Profile {
   id: string;
+  user_id: string;
   name: string;
-  email: string;
   role: 'student' | 'teacher';
-  createdAt: string;
-  onlineStatus: boolean;
+  online_status: boolean;
+  created_at: string;
 }
 
 interface AuthContextType {
   user: User | null;
+  profile: Profile | null;
+  session: Session | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: 'student' | 'teacher') => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -25,58 +29,90 @@ export const useAuth = () => {
   return ctx;
 };
 
-// Mock data for demo - will be replaced with Lovable Cloud
-const MOCK_USERS: (User & { password: string })[] = [
-  { id: '1', name: 'John Student', email: 'student@demo.com', password: 'demo123', role: 'student', createdAt: '2024-01-15', onlineStatus: true },
-  { id: '2', name: 'Jane Teacher', email: 'teacher@demo.com', password: 'demo123', role: 'teacher', createdAt: '2024-01-10', onlineStatus: true },
-  { id: '3', name: 'Alice Smith', email: 'alice@demo.com', password: 'demo123', role: 'student', createdAt: '2024-02-20', onlineStatus: false },
-  { id: '4', name: 'Bob Wilson', email: 'bob@demo.com', password: 'demo123', role: 'student', createdAt: '2024-03-01', onlineStatus: true },
-];
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('portal_user');
-    if (stored) {
-      try { setUser(JSON.parse(stored)); } catch { /* ignore */ }
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (data) {
+      setProfile(data as Profile);
+      // Update online status
+      await supabase.from('profiles').update({ online_status: true, last_seen: new Date().toISOString() }).eq('user_id', userId);
     }
-    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        // Use setTimeout to avoid deadlock with Supabase auth
+        setTimeout(() => fetchProfile(session.user.id), 0);
+      } else {
+        setProfile(null);
+      }
+      setIsLoading(false);
+    });
+
+    // THEN check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      }
+      setIsLoading(false);
+    });
+
+    // Set offline on beforeunload
+    const handleBeforeUnload = () => {
+      if (user) {
+        navigator.sendBeacon && supabase.from('profiles').update({ online_status: false }).eq('user_id', user.id);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
-    const found = MOCK_USERS.find(u => u.email === email && u.password === password);
-    if (!found) throw new Error('Invalid email or password');
-    const { password: _, ...userData } = found;
-    setUser(userData);
-    localStorage.setItem('portal_user', JSON.stringify(userData));
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
   };
 
   const register = async (name: string, email: string, password: string, role: 'student' | 'teacher') => {
-    if (MOCK_USERS.find(u => u.email === email)) throw new Error('Email already exists');
-    const newUser: User = {
-      id: String(Date.now()),
-      name, email, role,
-      createdAt: new Date().toISOString().split('T')[0],
-      onlineStatus: true,
-    };
-    setUser(newUser);
-    localStorage.setItem('portal_user', JSON.stringify(newUser));
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name, role },
+      },
+    });
+    if (error) throw new Error(error.message);
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('portal_user');
+  const logout = async () => {
+    if (user) {
+      await supabase.from('profiles').update({ online_status: false }).eq('user_id', user.id);
+    }
+    await supabase.auth.signOut();
+    setProfile(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, profile, session, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-// Export mock data for teacher dashboard
-export const getMockStudents = () => MOCK_USERS.filter(u => u.role === 'student');
-export const getMockOnlineStudents = () => MOCK_USERS.filter(u => u.role === 'student' && u.onlineStatus);

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { BookOpen, Mail, Lock, User, UserPlus, AlertCircle } from 'lucide-react';
+import { BookOpen, Mail, Lock, User, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -14,8 +14,14 @@ const Register = () => {
   const [role, setRole] = useState<'student' | 'teacher'>('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, profile } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (profile) {
+      navigate(profile.role === 'teacher' ? '/teacher' : '/student', { replace: true });
+    }
+  }, [profile, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +29,6 @@ const Register = () => {
     setLoading(true);
     try {
       await register(name, email, password, role);
-      navigate(role === 'teacher' ? '/teacher' : '/student');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -48,28 +53,19 @@ const Register = () => {
               {error && (
                 <div className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</div>
               )}
-
-              {/* Role Selection */}
               <div className="space-y-2">
                 <Label>I am a</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {(['student', 'teacher'] as const).map(r => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
+                    <button key={r} type="button" onClick={() => setRole(r)}
                       className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                        role === r
-                          ? 'border-primary bg-primary/5 text-primary'
-                          : 'border-border text-muted-foreground hover:border-primary/30'
-                      }`}
-                    >
+                        role === r ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-primary/30'
+                      }`}>
                       {r === 'student' ? '🎓 Student' : '👨‍🏫 Teacher'}
                     </button>
                   ))}
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative">
