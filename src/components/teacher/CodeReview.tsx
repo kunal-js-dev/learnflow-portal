@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Timer, Eye, Send, ImageIcon } from 'lucide-react';
+import { Timer, Eye, Send, ImageIcon, X, ZoomIn } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +29,7 @@ const CodeReview = () => {
   const [grading, setGrading] = useState<Record<string, { grade: string; feedback: string }>>({});
   const [viewingCode, setViewingCode] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -111,7 +113,12 @@ const CodeReview = () => {
                   )}
                 </div>
                 {viewingImage === sub.id && sub.screenshot_url && (
-                  <img src={sub.screenshot_url} alt="Screenshot" className="max-h-48 rounded-lg border border-border" />
+                  <div className="relative group">
+                    <img src={sub.screenshot_url} alt="Screenshot" className="max-h-64 rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setFullScreenImage(sub.screenshot_url)} />
+                    <Button size="sm" variant="ghost" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setFullScreenImage(sub.screenshot_url)}>
+                      <ZoomIn className="w-4 h-4" />
+                    </Button>
+                  </div>
                 )}
 
                 {!sub.grade && (
@@ -140,6 +147,14 @@ const CodeReview = () => {
           ))}
         </div>
       )}
+
+      <Dialog open={!!fullScreenImage} onOpenChange={() => setFullScreenImage(null)}>
+        <DialogContent className="max-w-4xl p-2">
+          {fullScreenImage && (
+            <img src={fullScreenImage} alt="Full screenshot" className="w-full h-auto rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
