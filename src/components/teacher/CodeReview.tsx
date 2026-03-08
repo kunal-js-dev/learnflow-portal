@@ -147,6 +147,14 @@ const CodeReview = () => {
           ))}
         </div>
       )}
+
+      <Dialog open={!!fullScreenImage} onOpenChange={() => setFullScreenImage(null)}>
+        <DialogContent className="max-w-4xl p-2">
+          {fullScreenImage && (
+            <img src={fullScreenImage} alt="Full screenshot" className="w-full h-auto rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
