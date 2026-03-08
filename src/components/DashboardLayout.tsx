@@ -51,15 +51,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto stagger-children">
           {links.map(link => (
             <RouterNavLink key={link.to} to={link.to} end={link.end}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-glow' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                  isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-glow' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-1'
                 }`}>
-              <link.icon className="w-4 h-4" />
+              <link.icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
               {link.label}
             </RouterNavLink>
           ))}

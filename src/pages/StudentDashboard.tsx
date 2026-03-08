@@ -23,12 +23,12 @@ const StudentHome = () => (
       <h2 className="text-xl font-bold text-foreground">Welcome back! 👋</h2>
       <p className="text-sm text-muted-foreground mt-1">Start learning with the tools below</p>
     </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-children">
       {quickLinks.map(link => (
         <Link key={link.to} to={link.to}>
-          <Card className="shadow-card hover:shadow-elevated transition-all hover:-translate-y-0.5 cursor-pointer h-full">
+          <Card className="shadow-card hover-lift hover-icon-spin cursor-pointer h-full group">
             <CardContent className="p-5 flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${link.color}`}><link.icon className="w-6 h-6" /></div>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${link.color} transition-transform duration-300 group-hover:scale-110`}><link.icon className="w-6 h-6" /></div>
               <div>
                 <p className="font-semibold text-foreground">{link.label}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{link.desc}</p>

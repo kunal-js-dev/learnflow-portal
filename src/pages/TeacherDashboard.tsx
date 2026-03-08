@@ -38,12 +38,12 @@ const TeacherHome = () => {
         <h2 className="text-xl font-bold text-foreground">Welcome, Teacher! 📚</h2>
         <p className="text-sm text-muted-foreground mt-1">Manage your classroom</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-children">
         {stats.map(s => (
           <Link key={s.to} to={s.to}>
-            <Card className="shadow-card hover:shadow-elevated transition-all hover:-translate-y-0.5 cursor-pointer h-full">
+            <Card className="shadow-card hover-lift hover-icon-spin cursor-pointer h-full group">
               <CardContent className="p-5 flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.color}`}><s.icon className="w-6 h-6" /></div>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.color} transition-transform duration-300 group-hover:scale-110`}><s.icon className="w-6 h-6" /></div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">{s.value}</p>
                   <p className="text-xs text-muted-foreground">{s.label}</p>
