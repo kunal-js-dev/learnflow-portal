@@ -15,17 +15,18 @@ const NotFound = React.lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode; role: 'student' | 'teacher' }) => {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return null;
+  const { user, profile, isLoading } = useAuth();
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== role) return <Navigate to={`/${user.role}`} replace />;
+  if (!profile) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading profile...</div>;
+  if (profile.role !== role) return <Navigate to={`/${profile.role}`} replace />;
   return <>{children}</>;
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return null;
-  if (user) return <Navigate to={`/${user.role}`} replace />;
+  const { user, profile, isLoading } = useAuth();
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
+  if (user && profile) return <Navigate to={`/${profile.role}`} replace />;
   return <>{children}</>;
 };
 
