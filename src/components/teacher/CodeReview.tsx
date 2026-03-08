@@ -113,7 +113,12 @@ const CodeReview = () => {
                   )}
                 </div>
                 {viewingImage === sub.id && sub.screenshot_url && (
-                  <img src={sub.screenshot_url} alt="Screenshot" className="max-h-48 rounded-lg border border-border" />
+                  <div className="relative group">
+                    <img src={sub.screenshot_url} alt="Screenshot" className="max-h-64 rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setFullScreenImage(sub.screenshot_url)} />
+                    <Button size="sm" variant="ghost" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setFullScreenImage(sub.screenshot_url)}>
+                      <ZoomIn className="w-4 h-4" />
+                    </Button>
+                  </div>
                 )}
 
                 {!sub.grade && (
