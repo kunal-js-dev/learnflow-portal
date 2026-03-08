@@ -37,17 +37,20 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      <div className="absolute top-1/3 -right-20 w-72 h-72 rounded-full bg-primary/5 blur-3xl float" />
+      <div className="absolute bottom-1/3 -left-20 w-72 h-72 rounded-full bg-accent/5 blur-3xl float" style={{ animationDelay: '1.5s' }} />
+
+      <div className="w-full max-w-md animate-fade-in relative z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-primary mb-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-primary mb-4 animate-scale-bounce shadow-glow">
             <BookOpen className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Create Account</h1>
-          <p className="text-muted-foreground mt-1">Join the learning portal</p>
+          <h1 className="text-2xl font-bold gradient-text">Create Account</h1>
+          <p className="text-muted-foreground mt-1 animate-fade-in-up" style={{ animationDelay: '0.15s', animationFillMode: 'both' }}>Join the learning portal</p>
         </div>
 
-        <Card className="shadow-elevated border-border/50">
+        <Card className="shadow-elevated border-border/50 hover-lift animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
