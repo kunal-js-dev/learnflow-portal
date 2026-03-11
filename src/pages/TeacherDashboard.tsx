@@ -31,6 +31,7 @@ const TeacherHome = () => {
     { to: '/teacher/students', icon: Users, label: 'Total Students', value: String(studentCount), color: 'bg-accent/10 text-accent' },
     { to: '/teacher/online', icon: Activity, label: 'Online Now', value: String(onlineCount), color: 'bg-success/10 text-success' },
     { to: '/teacher/review', icon: ClipboardCheck, label: 'Code Review', value: 'Review', color: 'bg-warning/10 text-warning' },
+    { to: '/teacher/student-uploads', icon: FileCode, label: 'Student Uploads', value: 'View', color: 'bg-info/10 text-info' },
   ];
 
   return (
