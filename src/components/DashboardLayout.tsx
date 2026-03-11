@@ -3,7 +3,7 @@ import { NavLink as RouterNavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   BookOpen, FileText, Cpu, Code, LogOut, LayoutDashboard,
-  Upload, Users, Activity, ClipboardCheck, GraduationCap, Menu
+  Upload, Users, Activity, ClipboardCheck, GraduationCap, Menu, FileCode
 } from 'lucide-react';
 import { useState } from 'react';
 
