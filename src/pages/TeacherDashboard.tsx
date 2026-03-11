@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, Users, Activity, ClipboardCheck } from 'lucide-react';
+import { Upload, Users, Activity, ClipboardCheck, FileCode } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,6 +10,7 @@ const TeacherUpload = React.lazy(() => import('@/components/teacher/TeacherUploa
 const StudentAnalytics = React.lazy(() => import('@/components/teacher/StudentAnalytics'));
 const OnlineStudents = React.lazy(() => import('@/components/teacher/OnlineStudents'));
 const CodeReview = React.lazy(() => import('@/components/teacher/CodeReview'));
+const StudentUploads = React.lazy(() => import('@/components/teacher/StudentUploads'));
 
 const TeacherHome = () => {
   const [studentCount, setStudentCount] = useState(0);
