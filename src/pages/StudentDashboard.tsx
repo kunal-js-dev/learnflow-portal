@@ -51,6 +51,7 @@ const StudentDashboard = () => (
         <Route path="materials" element={<StudyMaterials />} />
         <Route path="ai-tools" element={<AITools />} />
         <Route path="coding" element={<CodingHub />} />
+        <Route path="upload" element={<FileUpload />} />
         <Route path="grades" element={<MyGrades />} />
       </Routes>
     </React.Suspense>
