@@ -16,6 +16,7 @@ const studentLinks = [
   { to: '/student/materials', icon: FileText, label: 'Study Materials' },
   { to: '/student/ai-tools', icon: Cpu, label: 'AI Tools' },
   { to: '/student/coding', icon: Code, label: 'Coding Hub' },
+  { to: '/student/upload', icon: Upload, label: 'Upload Code' },
   { to: '/student/grades', icon: ClipboardCheck, label: 'My Grades' },
 ];
 

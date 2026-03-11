@@ -2,18 +2,20 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileText, Cpu, Code, BookOpen } from 'lucide-react';
+import { FileText, Cpu, Code, BookOpen, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const StudyMaterials = React.lazy(() => import('@/components/student/StudyMaterials'));
 const AITools = React.lazy(() => import('@/components/student/AITools'));
 const CodingHub = React.lazy(() => import('@/components/student/CodingHub'));
 const MyGrades = React.lazy(() => import('@/components/student/MyGrades'));
+const FileUpload = React.lazy(() => import('@/components/student/FileUpload'));
 
 const quickLinks = [
   { to: '/student/materials', icon: FileText, label: 'Study Materials', desc: 'Download learning resources', color: 'bg-primary/10 text-primary' },
   { to: '/student/ai-tools', icon: Cpu, label: 'AI Tools', desc: 'Explore AI productivity tools', color: 'bg-accent/10 text-accent' },
   { to: '/student/coding', icon: Code, label: 'Coding Hub', desc: 'Practice coding skills', color: 'bg-warning/10 text-warning' },
+  { to: '/student/upload', icon: Upload, label: 'Upload Code', desc: 'Submit code files to teacher', color: 'bg-info/10 text-info' },
   { to: '/student/grades', icon: BookOpen, label: 'My Grades', desc: 'View grades & feedback', color: 'bg-success/10 text-success' },
 ];
 
@@ -49,6 +51,7 @@ const StudentDashboard = () => (
         <Route path="materials" element={<StudyMaterials />} />
         <Route path="ai-tools" element={<AITools />} />
         <Route path="coding" element={<CodingHub />} />
+        <Route path="upload" element={<FileUpload />} />
         <Route path="grades" element={<MyGrades />} />
       </Routes>
     </React.Suspense>
