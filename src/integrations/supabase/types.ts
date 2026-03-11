@@ -161,7 +161,15 @@ export type Database = {
           student_id?: string
           uploaded_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "student_uploads_student_id_profiles_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
