@@ -3,7 +3,7 @@ import { NavLink as RouterNavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   BookOpen, FileText, Cpu, Code, LogOut, LayoutDashboard,
-  Upload, Users, Activity, ClipboardCheck, GraduationCap, Menu
+  Upload, Users, Activity, ClipboardCheck, GraduationCap, Menu, FileCode
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -26,6 +26,7 @@ const teacherLinks = [
   { to: '/teacher/students', icon: Users, label: 'Student Analytics' },
   { to: '/teacher/online', icon: Activity, label: 'Online Students' },
   { to: '/teacher/review', icon: ClipboardCheck, label: 'Code Review' },
+  { to: '/teacher/student-uploads', icon: FileCode, label: 'Student Uploads' },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
