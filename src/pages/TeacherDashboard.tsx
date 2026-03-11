@@ -68,6 +68,7 @@ const TeacherDashboard = () => (
         <Route path="students" element={<StudentAnalytics />} />
         <Route path="online" element={<OnlineStudents />} />
         <Route path="review" element={<CodeReview />} />
+        <Route path="student-uploads" element={<StudentUploads />} />
       </Routes>
     </React.Suspense>
   </DashboardLayout>
