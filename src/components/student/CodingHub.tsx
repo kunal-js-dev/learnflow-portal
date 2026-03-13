@@ -75,7 +75,13 @@ const CodingHub = () => {
     toast.info('Timer started! Good luck coding.');
   };
 
-  const handleCompile = () => {
+  const handleCompile = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success('Code copied! Paste it in the Programmiz editor (Ctrl+V / Cmd+V).');
+    } catch {
+      toast.info('Opening compiler — copy your code manually.');
+    }
     window.open(PROGRAMMIZ_URLS[language], '_blank');
   };
 
